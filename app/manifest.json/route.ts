@@ -1,27 +1,14 @@
 import { NextResponse } from 'next/server';
 
-/**
- * Serve the Crowdin **App Descriptor (manifest)** as a JSON response.
- *
- * The manifest tells Crowdin how to install and integrate the app:
- *   – identifier, name, logo
- *   – OAuth details (client id)
- *   – event web-hooks (installed / uninstall)
- *   – requested scopes
- *   – app modules (project-menu, custom file format, etc.)
- *
- * The route is automatically picked up by Next.js because it lives inside the
- * `app/manifest.json` folder and returns a `NextResponse` with `.json()`.
- */
 export async function GET() {
   const manifestData = {
     identifier: 'snbt',
     name: 'SNBT',
-    baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL, // 例如 https://your-app.vercel.app
     logo: '/logo.svg',
     authentication: {
       type: 'crowdin_app',
-      clientId: process.env.CROWDIN_CLIENT_ID,
+      clientId: process.env.CROWDIN_CLIENT_ID, // 来自 Crowdin 的 OAuth 应用
     },
     events: {
       installed: '/events/installed',
@@ -29,13 +16,7 @@ export async function GET() {
     },
     scopes: ['project'],
     modules: {
-      'project-menu': [
-        {
-          key: 'menu',
-          name: 'SNBT',
-          url: '/project-menu',
-        },
-      ],
+      'project-menu': [{ key: 'menu', name: 'SNBT', url: '/project-menu' }],
       'custom-file-format': [
         {
           key: 'custom-file-format',
