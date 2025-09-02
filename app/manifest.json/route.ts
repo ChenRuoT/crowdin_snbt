@@ -15,7 +15,7 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   const manifestData = {
-    identifier: 'SNBT',
+    identifier: 'snbt',
     name: 'SNBT',
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     logo: '/logo.svg',
@@ -34,6 +34,17 @@ export async function GET() {
           key: 'menu',
           name: 'SNBT',
           url: '/project-menu',
+        },
+      ],
+      'custom-file-format': [
+        {
+          key: 'custom-file-format',
+          type: 'custom-file-format',
+          url: '/api/file/process',
+          signaturePatterns: {
+            fileName: '.+\\.snbt$',
+            fileContent: '"hello_world":',
+          },
         },
       ],
     },
