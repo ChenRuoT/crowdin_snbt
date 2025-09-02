@@ -20,9 +20,8 @@ export async function GET() {
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     logo: '/logo.svg',
     authentication: {
-      type: 'oauth2',
+      type: 'crowdin_app',
       clientId: process.env.CROWDIN_CLIENT_ID,
-      redirectUrls: [`${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`],
     },
     events: {
       installed: '/events/installed',
