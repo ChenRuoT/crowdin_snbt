@@ -20,13 +20,7 @@ export async function GET() {
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     logo: '/logo.svg',
     authentication: {
-      type: 'crowdin_app',
-      clientId: process.env.CROWDIN_CLIENT_ID,
-      clientSecret: process.env.CROWDIN_CLIENT_SECRET,
-    },
-    events: {
-      installed: '/events/installed',
-      uninstall: '/events/uninstall',
+      type: 'none',
     },
     scopes: ['project'],
     modules: {
@@ -35,17 +29,6 @@ export async function GET() {
           key: 'menu',
           name: 'SNBT',
           url: '/project-menu',
-        },
-      ],
-      'custom-file-format': [
-        {
-          key: 'custom-file-format',
-          type: 'custom-file-format',
-          url: '/api/file/process',
-          signaturePatterns: {
-            fileName: '.+\\.json$',
-            fileContent: '"hello_world":',
-          },
         },
       ],
     },
