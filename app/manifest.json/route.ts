@@ -15,16 +15,16 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   const manifestData = {
-    identifier: 'getting-started',
-    name: 'Getting Started',
+    identifier: 'SNBT',
+    name: 'SNBT',
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     logo: '/logo.svg',
     authentication: {
-      type: 'none',
+      type: 'crowdin_app',
     },
     scopes: ['project'],
     modules: {
-      'project-menu': [{ key: 'menu', name: 'Getting Started', url: '/project-menu' }],
+      'project-menu': [{ key: 'menu', name: 'SNBT', url: '/project-menu' }],
     },
   };
 
