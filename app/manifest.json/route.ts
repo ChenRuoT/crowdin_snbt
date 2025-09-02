@@ -22,6 +22,7 @@ export async function GET() {
     authentication: {
       type: 'crowdin_app',
       clientId: process.env.CROWDIN_CLIENT_ID,
+      clientSecret: process.env.CROWDIN_CLIENT_SECRET,
     },
     events: {
       installed: '/events/installed',
