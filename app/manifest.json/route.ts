@@ -15,8 +15,8 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   const manifestData = {
-    identifier: 'getting-started',
-    name: 'Getting Started',
+    identifier: 'SNBT',
+    name: 'SNBT',
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     logo: '/logo.svg',
     authentication: {
@@ -32,7 +32,7 @@ export async function GET() {
       'project-menu': [
         {
           key: 'menu',
-          name: 'Getting Started',
+          name: 'SNBT',
           url: '/project-menu',
         },
       ],
