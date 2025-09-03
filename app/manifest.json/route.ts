@@ -19,12 +19,12 @@ export async function GET() {
       'project-menu': [{ key: 'menu', name: 'SNBT', url: '/project-menu' }],
       'custom-file-format': [
         {
-          key: 'custom-file-format',
-          type: 'custom-file-format',
+          key: 'snbt-processing',
+          type: 'snbt-processing',
           url: '/api/file/process',
           signaturePatterns: {
             fileName: '.+\\.snbt$',
-            fileContent: '"hello_world":',
+            fileContent: '.*',
           },
         },
       ],

@@ -10,10 +10,10 @@ import { FileInfo, TranslationEntry } from './types';
  * @throws When neither source is available or when the content cannot be
  *         fetched/parsed.
  */
-export async function getContent(file: FileInfo): Promise<Record<string, string>> {
+export async function getContent(file: FileInfo): Promise<string> {
   if (file.content) {
     try {
-      return JSON.parse(Buffer.from(file.content, 'base64').toString());
+      return Buffer.from(file.content, 'base64').toString();
     } catch (error) {
       throw new Error(
         `Failed to parse file content: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -27,7 +27,7 @@ export async function getContent(file: FileInfo): Promise<Record<string, string>
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
       }
-      return await response.json();
+      return await response.text();
     } catch (error) {
       throw new Error(
         `Failed to load content from ${file.contentUrl}: ${error instanceof Error ? error.message : 'Unknown error'}`

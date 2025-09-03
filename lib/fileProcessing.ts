@@ -69,7 +69,7 @@ export async function buildFile(req: BuildFileRequest) {
   const fileContent = await getContent(req.file);
   const translations = await getStringsForExport(req);
 
-  if (!fileContent || typeof fileContent !== 'object' || Object.keys(fileContent).length === 0) {
+  if (!fileContent || Object.keys(fileContent).length === 0) {
     throw new Error('No content to translate or invalid file content format');
   }
 
@@ -90,8 +90,8 @@ export async function buildFile(req: BuildFileRequest) {
     data: {
       contentUrl: await uploadToBlob(
         responseContent,
-        `built_files/${fileBaseName}_content.json`,
-        'application/json'
+        `built_files/${fileBaseName}_content.snbt`,
+        'text/plain'
       ),
     },
   };
@@ -104,14 +104,14 @@ export async function buildFile(req: BuildFileRequest) {
  * @returns Object with strings for translation and preview
  */
 function extractStringsFromContent(
-  fileContent: Record<string, string>,
+  fileContent: string,
   languageId?: string
 ): { sourceStrings: TranslationEntry[]; previewStrings: PreviewStrings } {
   const sourceStrings: TranslationEntry[] = [];
   const previewStrings: PreviewStrings = {};
   let previewIndex = 0;
 
-  if (!fileContent || typeof fileContent !== 'object') {
+  /*  if (!fileContent || typeof fileContent !== 'object') {
     return { sourceStrings, previewStrings };
   }
 
@@ -142,8 +142,48 @@ function extractStringsFromContent(
       id: previewIndex,
     };
     previewIndex++;
-  }
+  }*/
+  const kvRegex = /^(.+?):\s*(?:"([^"]*)"|\[(.*?)\])$/gm;
+  let match;
+  while ((match = kvRegex.exec(fileContent)) !== null) {
+    const keyBase = typeof match[1] === 'string' ? match[1].trim() : '';
 
+    if (match[2] !== undefined) {
+      // 单个字符串值
+      const value = match[2];
+      sourceStrings.push({
+        identifier: keyBase,
+        text: value,
+        context: `SNBT key: ${keyBase}`,
+        previewId: previewIndex,
+        customData: '',
+        labels: [],
+        isHidden: false,
+        translations: languageId ? { [languageId]: { text: value } } : {},
+      });
+      previewStrings[keyBase] = { text: value, id: previewIndex };
+      previewIndex++;
+    } else if (match[3] !== undefined) {
+      // 数组值
+      const arrayItems = match[3].match(/"([^"]*)"/g) || [];
+      arrayItems.forEach((item, index) => {
+        const clean = item.slice(1, -1);
+        const identifier = `${keyBase}[${index}]`;
+        sourceStrings.push({
+          identifier,
+          text: clean,
+          context: `SNBT key: ${keyBase}[${index}]`,
+          previewId: previewIndex,
+          customData: '',
+          labels: [],
+          isHidden: false,
+          translations: languageId ? { [languageId]: { text: clean } } : {},
+        });
+        previewStrings[identifier] = { text: clean, id: previewIndex };
+        previewIndex++;
+      });
+    }
+  }
   return { sourceStrings, previewStrings };
 }
 
@@ -179,18 +219,44 @@ async function generatePreviewHtml(
  * @returns Translated file content
  */
 function translateFileContent(
-  fileContent: Record<string, string>,
+  fileContent: string,
   translations: TranslationEntry[],
   languageId: string
-): Record<string, string> {
-  const translatedContent = { ...fileContent };
+): string {
+  /*const translatedContent = { ...fileContent };
 
   for (const key of Object.keys(translatedContent)) {
     if (typeof translatedContent[key] !== 'string') {
       continue;
     }
     translatedContent[key] = getTranslation(translations, key, languageId, translatedContent[key]);
-  }
+  }*/
+  let translatedContent = fileContent;
 
+  translations.forEach(entry => {
+    const translatedText = getTranslation(translations, entry.identifier, languageId, entry.text);
+
+    if (entry.identifier.includes('[')) {
+      // 数组项 key[index]
+      const [key, indexStr] = entry.identifier.split(/\[|\]/);
+      if (typeof key === 'undefined' || typeof indexStr === 'undefined') {
+        // Skip if key or index is undefined
+        return;
+      }
+      const index = parseInt(indexStr, 10);
+      const arrayRegex = new RegExp(`^(${key.trim()}:\\s*\\[)([^\\]]*)(\\])`, 'm');
+      translatedContent = translatedContent.replace(arrayRegex, (match, start, items, end) => {
+        const parts = items.match(/"([^"]*)"/g) || [];
+        if (parts[index]) {
+          parts[index] = `"${translatedText}"`;
+        }
+        return start + parts.join(', ') + end;
+      });
+    } else {
+      // 普通 key: "value"
+      const regex = new RegExp(`(${entry.identifier}\\s*:\\s*)".*?"`, 'm');
+      translatedContent = translatedContent.replace(regex, `$1"${translatedText}"`);
+    }
+  });
   return translatedContent;
 }
